@@ -1,4 +1,4 @@
-# Colaborativo 1.0 — Sistema Colaborativo de Detecção de Fraude com React Agent
+# Sentinela 1.0 — Sistema Colaborativo de Detecção de Fraude com React Agent
 
 Este projeto é um protótipo de sistema colaborativo baseado em um **React Agent**, desenvolvido com **LangGraph**, **LangChain** e **Ollama**.
 
