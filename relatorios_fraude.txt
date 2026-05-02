@@ -1,0 +1,194 @@
+RELATÓRIOS HISTÓRICOS DE FRAUDE - ARQUIVO INTERNO DO BANCO
+===========================================================
+
+RELATÓRIO #001 - Fraude de Identidade
+Data: 2024-01-15 09:30
+Cliente Afetado: João Silva (ID: CS_00142)
+Valor: R$ 2.847,50
+Categoria: Compra Online - Eletrônicos
+Localização: São Paulo, SP / Tentativa em: Amazonas, AM
+Status da Conta Antes: Premium, limite diário R$ 50.000
+Score de Risco Obtido: 92 (CRÍTICO)
+Ações Tomadas: Transação bloqueada automaticamente
+Resultado: FRAUDE CONFIRMADA
+Resumo: Cliente principal em São Paulo; invasor tentou compra de notebooks em Manaus. Sistema detectou mudança geográfica impossível em 2 horas. Cliente não reconheceu transação. Cartão reaplicado.
+
+---
+
+RELATÓRIO #002 - Fraude de Cartão Clonado
+Data: 2024-01-20 14:15
+Cliente Afetado: Maria Santos (ID: CS_00189)
+Valor: R$ 5.632,80 (4 transações acumuladas)
+Categoria: Combustível / Restaurante / Farmácia / Loja Departamentos
+Localização: Espírito Santo, ES
+Status da Conta Antes: Regular, limite diário R$ 5.000
+Score de Risco Obtido: 78 (ALTO)
+Ações Tomadas: Solicitado 2FA via SMS
+Resultado: CLIENTE NEGOU - FRAUDE CONFIRMADA
+Resumo: Múltiplas pequenas transações (< R$ 2.000) em sequência rápida em estado diferente. Cliente não estava em viagem planejada. Confirmou não ter autorizado. Cartão clonado em gasolina suspeita. Relatório policiadisposto.
+
+---
+
+RELATÓRIO #003 - Falso Positivo - Viagem
+Data: 2024-01-22 21:45
+Cliente Afetado: Carlos Mendes (ID: CS_00256)
+Valor: R$ 8.900,00
+Categoria: Hotel e Alimentação
+Localização: Rio de Janeiro, RJ (cliente de São Paulo)
+Status da Conta Antes: Premium, sem restrições
+Score de Risco Obtido: 68 (MÉDIO)
+Ações Tomadas: Solicitada confirmação via app
+Resultado: CLIENTE CONFIRMOU - FALSO POSITIVO
+Resumo: Cliente em férias no Rio (não notificou antes). Score elevado por mudança de estado. Após confirmação, transação liberada. Sugestão: implementar pré-registro de viagens.
+
+---
+
+RELATÓRIO #004 - Fraude Graduada
+Data: 2024-02-08 11:20
+Cliente Afetado: Antônio Oliveira (ID: CS_00099)
+Valor: R$ 145,00 → R$ 890,00 → R$ 3.200,00 (progressão)
+Categoria: Compra Online
+Localização: São Paulo, SP (múltiplos domínios)
+Status: Padrão
+Score Progressivo: 35 → 52 → 71
+Ações Tomadas: Bloqueio na terceira tentativa
+Resultado: FRAUDE CONFIRMADA (padrão de teste)
+Resumo: Fraudador teste com pequenas compras para validar cartão clonado. Após sucesso, aumentou valor. Detectado na terceira tentativa antes de transferência grande. Padrão comum em fraudes organizadas.
+
+---
+
+RELATÓRIO #005 - Roubo de Dados
+Data: 2024-02-15 19:00
+Cliente Afetado: Múltiplos (segmento descoberto no evento de segurança)
+Valor: Até R$ 50.000 por cliente (20 clientes afetados)
+Categoria: Transferências PIX não autorizadas
+Localização: Diversos (coordenação suspeita)
+Tipo: Brecha de segurança em aplicativo parceiro
+Status: INCIDENTE DE SEGURANÇA NÍVEL 2
+Ações Tomadas: Bloqueio de todas as accounts afetadas, comunicado ao Banco Central
+Resultado: FRAUDE CONFIRMADA EM MASSA / BRECHA PLUGGED
+Resumo: Vazamento de dados de 20 clientes em aplicativo integrado. Fraudadores usaram dados para criar perfis falsos e transferências. Sistema bloqueou padrão suspeito após 3ª ocorrência. Implementação de sandboxing obrigatória para parceiros.
+
+---
+
+RELATÓRIO #006 - Tentativa de Overpayment Scam
+Data: 2024-02-28 10:15
+Cliente Afetado: Empresa XYZ Comércio (ID: BZ_00045)
+Valor: R$ 28.500,00
+Categoria: Transferência B2B
+Localização: SP → Interior de SP
+Status da Conta Antes: Jurídica, limite customizado
+Score de Risco Obtido: 42 (BAIXO)
+Ações Tomadas: Nenhuma (passou pelos filtros)
+Resultado: FRAUDE NÃO DETECTADA - DESCOBERTA MANUAL
+Resumo: Gerente detectou transfer para novo fornecedor com pequena variação de nome (cnpj_fake_6789 vs cnpj_6788). Valor acima do esperado. Fraude sofisticada - mudança de 1 dígito. Sistema recomenda validação manual em transferências > R$ 20.000 para jurídicas.
+
+---
+
+RELATÓRIO #007 - Social Engineering
+Data: 2024-03-05 16:30
+Cliente Afetado: Roberto Costa (ID: CS_00312)
+Valor: R$ 12.800,00
+Categoria: Cartão Google Play / App Store
+Localização: Diversas transações online
+Status da Conta Antes: Regular
+Score: 55 (MÉDIO)
+Ações Tomadas: Confirmação solicitada
+Resultado: CLIENTE CONFIRMOU (não reconheceu após)
+Resumo: Fraudador contactou cliente por telefone se passando por banco, solicitou credenciais "para proteção". Cliente forneceu dados. Múltiplas compras em apps para revenda. Confirmar para liberar. Após análise, cliente negou. Polícia notificada - golpista em série ativo.
+
+---
+
+RELATÓRIO #008 - Padrão Semanal de Teste
+Data: 2024-03-12 cada terça-feira
+Cliente Afetado: Patricia Lima (ID: CS_00401)
+Valor: Sempre exatamente R$ 1.234,56
+Categoria: Sempre estabelecimentos diferentes
+Localização: Mesma cidade (consistente)
+Tipo: PADRÃO SUSPEITO
+Score: Variável 58-65 (MÉDIO)
+Ações Tomadas: Monitoramento reforçado após $3ª ocorrência
+Resultado: EM INVESTIGAÇÃO (não confirmado fraude ainda)
+Resumo: Transações idênticas em valor toda terça, em estabelecimentos diversos. Pode indicar: (1) testes sistemáticos, (2) lavagem de dinheiro, (3) comportamento compulsivo. Cliente negou quando contatado. Mantém padrão. Direcionado para análise de compliance.
+
+---
+
+RELATÓRIO #009 - Compra Anômala com Confirmação
+Data: 2024-03-18 22:00
+Cliente Afetado: Fernando Teixeira (ID: CS_00087)
+Valor: R$ 95.000,00
+Categoria: Eletroeletrônicos Premium
+Localização: São Paulo (cliente local - consistente)
+Status da Conta: Premium, limite R$ 50.000 (transação acima do limite)
+Score: 88 (CRÍTICO)
+Ações Tomadas: Bloqueio + confirmação por telefone
+Resultado: CLIENTE CONFIRMOU - COMPRA LEGÍTIMA
+Resumo: Cliente grande limite elevado recentemente. Compra grande, fora de padrão histórico (nunca havia comprado > R$ 80k), mas cliente confirmou pessoalmente. Novo padrão estabelecido. Sugestão: integrar feed de "grandes compras planejadas" ao perfil.
+
+---
+
+RELATÓRIO #010 - Tentativa de Teste de Limite de Velocity
+Data: 2024-03-25 09:00 até 09:45 (45 minutos)
+Cliente Afetado: Account: CS_00520 (padrão suspeito)
+Valor: 12 transações de R$ 999,99 cada (total R$ 11.998,88)
+Categorias: Diversas (supermercado, pharmacy, eletrônicos, etc)
+Localização: Mesmo IP, 12 comerciantes diferentes
+Score (por transação): 5, 12, 28, 45, 62, 75, 84, 89, 91, 92, 93, 94
+Ações: Bloqueio automático após 7ª transação
+Resultado: FRAUDE CONFIRMADA - ATAQUE AUTOMATIZADO
+Resumo: Bot testando limite de velocity do sistema. Cada transação com valor estratégico (R$ 999,99 = abaixo de limite de notificação manual). Bloqueio acionado em cascata. IP rastreado para futura prevenção. Padrão indica ataque coordenado.
+
+---
+
+RELATÓRIO #011 - Compra Incongruente com Renda
+Data: 2024-04-02 14:30
+Cliente Afetado: Lucas Alves (ID: CS_00298)
+Valor: R$ 42.000,00
+Categoria: Joia Luxury
+Localização: Shopping Iguatemi, SP
+Status da Conta: Renda mensal declarada: R$ 3.500
+Score: 85 (CRÍTICO) - score elevado por incongruência de renda
+Ações: Verificação manual + bloqueio preventivo
+Resultado: CLIENTE CONFIRMOU - SUSTO VISUAL
+Resumo: Cliente recebeu herança (não atualizada no sistema). Realizar compra legítima. Após confirmação, detectado. Sugestão: permitir atualização de renda via app para reduzir falsos positivos em mudanças de vida.
+
+---
+
+RELATÓRIO #012 - Vazamento de Informações Sensíveis
+Data: 2024-04-10 (descoberto)
+Quantidade de Clientes: 840 clientes
+Tipo de Dados Vazados: E-mails, telefones, datas de nascimento
+Score de Impacto: CRÍTICO
+Ações: Comunicado ao Banco Central, LGPD, e clientes
+Resultado: PF contratada, análise forense
+Resumo: Dados de cadastro encontrados em forum de hackers (dark web). Não incluía senhas. Risco: roubo de identidade. Oferecido monitoramento de crédito para todos os afetados por 2 anos.
+
+---
+
+PADRÕES IDENTIFICADOS DO HISTÓRICO
+====================================
+
+Padrão #1 - Múltiplas tentativas rápidas
+Frequência: 8 casos
+Resultado: 85% fraude confirmada
+Ação recomendada: Bloquear após 3 transações em < 5 minutos
+
+Padrão #2 - Transação fora do estado usual
+Frequência: 12 casos
+Resultado: 40% fraude, 60% viagem legitimă
+Ação recomendada: Confirmação obrigatória
+
+Padrão #3 - Primeiro acesso em novo horário extremo
+Frequência: 6 casos
+Resultado: 70% fraude
+Ação recomendada: Bloqueio automático, contato telefônico
+
+Padrão #4 - Valor progressivo (teste de limite)
+Frequência: 5 casos
+Resultado: 100% fraude confirmada
+Ação recomendada: Bloqueio automático após 3ª progressão
+
+Padrão #5 - Categoria não frequente + localização anômala
+Frequência: 14 casos
+Resultado: 50% fraude, 50% comportamento legítimo novo
+Ação recomendada: Confirmação 2FA

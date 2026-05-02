@@ -1,35 +1,103 @@
-# Sentinela 1.0 — Sistema Colaborativo de Detecção de Fraude com React Agent
+# Sentinela 1.0 — Sistema Colaborativo de Detecção de Fraude com React Agent + RAG
 
-Este projeto é um protótipo de sistema colaborativo baseado em um **React Agent**, desenvolvido com **LangGraph**, **LangChain** e **Ollama**.
+Este projeto é um **sistema colaborativo com IA preditiva + RAG (Retrieval-Augmented Generation)**, desenvolvido com **LangGraph**, **LangChain** e **Ollama**.
 
-O objetivo do sistema é simular um agente de IA preditiva capaz de auxiliar um banco na detecção de possíveis fraudes em transações bancárias, PIX ou compras online.
+O objetivo do sistema é auxiliar um banco na detecção de possíveis fraudes em transações bancárias, PIX ou compras online, consultando:
+- Banco de dados histórico de clientes
+- **Políticas antifraude do banco (RAG)**
+- **Relatórios históricos de fraude (RAG)**
 
 ---
 
-## Objetivo do projeto
+## 🎯 Objetivo do projeto
 
 O sistema simula o seguinte fluxo:
 
 1. O cliente realiza uma compra.
 2. O banco solicita que a IA verifique a transação.
-3. A IA consulta um banco de dados simulado com o histórico do cliente.
+3. A IA consulta múltiplas fontes:
+   - Banco de dados simulado com histórico do cliente
+   - **Políticas antifraude (busca semântica)**
+   - **Relatórios históricos (busca semântica)**
 4. A IA prediz se a transação parece normal ou suspeita.
-5. Se a transação coincidir com o padrão esperado do cliente, ela é considerada normal.
+5. Se a transação coincidir com o padrão esperado, ela é considerada normal.
 6. Se a transação não coincidir com o padrão esperado, ela é considerada suspeita.
 7. Em caso de suspeita, o sistema:
-   - solicita confirmação ao cliente;
-   - gera um relatório justificativo para o banco.
+   - Consulta políticas para validar limites
+   - Compara com fraudes históricas
+   - Solicita confirmação ao cliente
+   - Gera relatório justificativo para o banco
+
+---
+
+## 🆕 Novo: Sistema RAG Integrado
+
+### Dois documentos de conhecimento:
+
+**1. `politicas_antifraude.txt`** (RAG)
+- Definições de fraude
+- Limites de transação por perfil
+- Indicadores de risco com scores
+- Padrões de uso esperados (horários, locais)
+- Procedimentos de verificação
+- Períodos de risco elevado
+- Recuperação pós-fraude
+
+**2. `relatorios_fraude.txt`** (RAG)
+- 12 casos reais de fraude documentados
+- Tipos: identidade, cartão clonado, social engineering
+- Padrões detectados no histórico
+- Falsos positivos (viagens, novas compras)
+- Lições aprendidas
+
+### Ferramentas RAG do Agent:
+
+```python
+- consultar_politicas_antifraude(pergunta)  # Busca semântica em políticas
+- consultar_relatorios_fraude(pergunta)     # Busca em histórico de fraudes
+```
+
+### Exemplos de uso:
+
+```
+User: "Qual é o limite de PIX para cliente Premium?"
+Agent: [consultar_politicas_antifraude]
+Resposta: "Limite de transferência PIX para Premium é R$ 100.000 por transação..."
+
+---
+
+User: "Houve fraude com mudança de localização geográfica?"
+Agent: [consultar_relatorios_fraude]
+Resposta: "Sim! Relatório #001: tentativa em Manaus bloqueada. Score 92 (CRÍTICO)..."
+```
+
+### Tecnologia RAG:
+
+- ✓ Chroma Vector Store (persistente em `./vdb/`)
+- ✓ Embeddings Ollama (`nomic-embed-text`)
+- ✓ Busca semântica com similaridade
+- ✓ Chunks de 800 caracteres com 200 de sobreposição
+- ✓ Top-5 resultados por query
+
+---
+
+## 📚 Documentação
+
+Leia os arquivos de documentação:
+
+- **[RAG_DOCUMENTATION.md](RAG_DOCUMENTATION.md)** - Guia completo do sistema RAG
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Resumo técnico da implementação
 
 ---
 
 ## Tecnologias utilizadas
 
-- Python 3.12
-- LangGraph
-- LangChain
+- Python 3.8+
+- LangGraph (React Agent pattern)
+- LangChain 0.1+ (com langchain-text-splitters moderno)
 - LangChain Ollama
-- Ollama
-- Modelo local `qwen2.5:3b`
+- **Chroma (Vector Store)**
+- Ollama com modelo `qwen2.5:3b`
 - Ubuntu Linux
 
 ---
@@ -38,15 +106,23 @@ O sistema simula o seguinte fluxo:
 
 ```bash
 Colaborativos/
-├── Colaborativo1.0.py
-├── README.md
-└── .venv/
+├── Colaborativo1.0.py              # Agent RAG principal ✨
+├── 05_rag_agent.py                 # Exemplo básico
+├── politicas_antifraude.txt        # Documento RAG: políticas
+├── relatorios_fraude.txt           # Documento RAG: histórico
+├── README.md                       # Este arquivo
+├── RAG_DOCUMENTATION.md            # Guia RAG
+├── IMPLEMENTATION_SUMMARY.md       # Resumo técnico
+├── vdb/                            # Vector database (Chroma) - criado ao rodar
+└── .venv/                          # Virtual environment
 ```
 
-O arquivo principal do projeto é:
+Os arquivos principais são:
 
 ```bash
-Colaborativo1.0.py
+Colaborativo1.0.py    # Agent com RAG integrado
+politicas_antifraude.txt     # Dados: políticas
+relatorios_fraude.txt        # Dados: histórico de fraudes
 ```
 
 ---
@@ -84,6 +160,14 @@ Se o ambiente estiver ativo, o terminal mostrará algo parecido com:
 ---
 
 ### 3. Instalar as dependências Python
+
+Para o sistema com RAG integrado:
+
+```bash
+pip install langgraph langchain langchain-ollama langchain-community langchain-chroma langchain-text-splitters chromadb
+```
+
+Ou minimamente (sem RAG de PDFs):
 
 ```bash
 pip install langgraph langchain langchain-ollama
