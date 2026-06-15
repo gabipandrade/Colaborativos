@@ -247,3 +247,7 @@ Resultado atual validado:
 ```text
 15 passed
 ```
+Autores:
+Gabriela Passos de Andrade 12625142
+Rafael Cunha Bejes Learth 13676367
+Erik Reis de Oliveira Santos 16864139
