@@ -1,0 +1,169 @@
+POLÍTICAS ANTIFRAUDE DO BANCO - DOCUMENTO CONFIDENCIAL
+======================================================
+
+1. DEFINIÇÃO DE FRAUDE
+=======================
+Fraude é qualquer ato intencional e desonesto realizado por um cliente, funcionário ou terceiro com o objetivo de obter ganho financeiro indevido às custas do banco ou de outros clientes.
+
+Categorias principais:
+- Fraude de identidade: uso unauthorized de dados pessoais de outro indivíduo
+- Fraude de cartão: uso unauthorized de cartão de crédito/débito
+- Fraude online: acesso não autorizado a contas digitais
+- Fraude de transferência: transferências não autorizadas via PIX ou TED
+- Fraude de cheque: emissão ou alteração fraudulenta de cheques
+
+2. LIMITES DE TRANSAÇÃO POR PERFIL
+===================================
+Cliente Padrão (Pessoa Física):
+- Limite de compra em loja física: R$ 5.000 por transação
+- Limite de compra online: R$ 2.000 por transação
+- Limite de transferência PIX: R$ 10.000 por transação
+- Limite diário de saques: R$ 5.000
+
+Cliente Premium:
+- Limite de compra em loja física: R$ 50.000 por transação
+- Limite de compra online: R$ 20.000 por transação
+- Limite de transferência PIX: R$ 100.000 por transação
+- Limite diário de saques: R$ 50.000
+
+Pessoa Jurídica:
+- Limite de compra: sem limite predefinido (análise caso a caso)
+- Limite de transferência: sem limite predefinido (análise caso a caso)
+
+3. INDICADORES DE RISCO
+=======================
+ALTO RISCO (Score ≥ 80):
+- Transação em valor > 150% da média histórica do cliente
+- Transação em país/cidade com histórico alto de fraude
+- Múltiplas tentativas de transação em tempo < 5 minutos
+- Horário anômalo para o cliente (fora de seu padrão em ±2 horas)
+- Mudança de dispositivo ou localização geográfica extrema
+- Account access em horário nunca usado antes
+- Transação do mesmo cliente em até 2 pontos geográficos distantes em < 1 hora
+
+MÉDIO RISCO (Score 50-79):
+- Transação em valor > 100% da média histórica
+- Transação em categoria não usual para o cliente (< 5% histórico)
+- Compra em novo comerciante não validado
+- Transação em horário considerado raro para o cliente
+- Tentativa de transação após falha anterior
+
+BAIXO RISCO (Score < 50):
+- Transação dentro dos padrões históricos do cliente
+- Categoria de gasto frequente para o cliente
+- Horário consistente com padrão conhecido
+- Dispositivo conhecido e localização esperada
+
+4. PADRÕES DE USO ESPERADOS
+============================
+HORÁRIOS:
+- Manhã: 08:00 - 12:00 (maior volume de transações)
+- Tarde: 13:00 - 18:00 (segundo maior volume)
+- Noite: 19:00 - 22:00 (volume reduzido)
+- Madrugada: 23:00 - 07:59 (volume mínimo - alta suspeita)
+
+CATEGORIAS COMUNS:
+- Alimentação: supermercados, restaurantes (esperado 5-7x por semana)
+- Transporte: combustível, transporte público (esperado 3-5x por semana)
+- Saúde: farmácias, médicos (esperado 1-2x por mês)
+- Educação: escolas, cursos (esperado conforme contratação)
+- Entretenimento: cinema, streaming (esperado 1-2x por semana)
+- Compras: roupas, eletrônicos (esperado 1-2x por semana)
+
+LOCALIZAÇÃO:
+- Raio esperado de transações: até 50km de residência registrada
+- Transações internacionais: apenas em viagens planejadas
+- Cidades comuns: até 5 cidades por cliente baseado no histórico
+
+5. PROCEDIMENTOS DE VERIFICAÇÃO
+=================================
+Para transações com Score entre 50-79 (MÉDIO RISCO):
+1. Aguardar confirmação do cliente via SMS ou app
+2. Tempo máximo de resposta: 10 minutos
+3. Se não confirmar em 10 minutos: BLOQUEAR transação
+4. Se cliente confirmar: LIBERAR e registrar padrão como novo normal
+
+Para transações com Score ≥ 80 (ALTO RISCO):
+1. BLOQUEAR transação imediatamente
+2. Contatar cliente por telefone (número registrado)
+3. Contatar em até 5 minutos
+4. Se não conseguir contato: manter bloqueio
+5. Cliente deve contatar banco para desbloquear
+6. Registrar incidente para análise posterior
+
+6. FALSOS POSITIVOS
+====================
+Situações que frequentemente geram alertas falsos:
+- Cliente em viagem (sem notificação prévia)
+- Novo emprego ou mudança de padrão de consumo
+- Compras sazonais (black friday, natal, etc)
+- Compras em nome de terceiros (parentes, amigos)
+- Primeiras transações em novas categorias
+- Primeira compra em novo estabelecimento
+
+Ações recomendadas para reduzir falsos positivos:
+- Manter histórico atualizado de viagens planejadas
+- Permitir notificação prévia de mudanças de padrão
+- Implementar whitelist de comerciantes frequentes
+- Revisar configurações de limite após 3 confirma positivos em 30 dias
+
+7. ALERTAS E MONITORAMENTO
+============================
+Monitorar continuamente:
+- Número de tentativas de transação rejeitadas (limite: 5 em 30 minutos)
+- Número de confirmações negadas pelo cliente (limite: 5 em 1 dia)
+- Mudanças abruptas de perfil de consumo
+- Novos dispositivos acessando a conta
+- Tentativas de acesso em múltiplos países em < 24 horas
+- Alterações no cadastro de dados da conta
+
+Alertas geram investigação automática:
+- Congelamento temporário de conta se score ≥ 95
+- Bloqueio de transferências internacionais se padrão anômalo
+- Solicitação de documento 2FA para novas operações
+
+8. RELATÓRIOS OBRIGATÓRIOS
+============================
+Situações que geram relatório compulsório:
+- Fraude confirmada (cliente confirma não reconhecer transação)
+- Transação ≥ R$ 15.000 com score ≥ 80
+- Sequência de 3 fraudes em 7 dias
+- Qualquer incidente com período de indisponibilidade > 2 horas
+
+Relatório deve incluir:
+- Data/hora da transação
+- Valor e categoria
+- Score de risco e justificativa
+- Ações tomadas
+- Resultado (confirmado/falso positivo/aguardando)
+- Tempo de resolução
+
+9. PERÍODOS DE RISCO ELEVADO
+==============================
+Épocas com maior incidência de fraude:
+- Black Friday (últimas 2 semanas de novembro) - aumento 300%
+- Natal (15 de dezembro a 2 de janeiro) - aumento 250%
+- Carnaval - aumento 150%
+- Volta ao trabalho (primeira semana de janeiro) - aumento 120%
+
+Durante esses períodos:
+- Aumentar limites de score para confirmação (de 50 para 60)
+- Aumentar período de espera de confirmação (de 10 para 15 minutos)
+- Reforçar monitoramento de cartões clonados
+
+10. RECUPERAÇÃO PÓS-FRAUDE
+============================
+Procedimento se fraude confirmada:
+1. Bloquear cartão/conta imediatamente
+2. Reverter transação fraudulenta em até 48 horas
+3. Contatar cliente para confirmação
+4. Emitir novo cartão (entrega em 7 dias úteis)
+5. Oferecer proteção adicional (2FA, alertas SMS)
+6. Registrar padrão de fraude para análise
+7. Relatório para delegacia (fraudes > R$ 10.000)
+8. Acompanhamento em 30 dias para confirmar resolução
+
+Ressarcimento:
+- Fraude confirmada: 100% em até 10 dias úteis
+- Fraude com responsabilidade compartilhada: análise individual
+- Fraude por negligência do cliente: sem ressarcimento (após análise)
