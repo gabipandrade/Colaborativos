@@ -87,7 +87,7 @@ O sistema usa Chroma e embeddings do Ollama (`nomic-embed-text`) para recuperar 
 Fontes de conhecimento:
 
 - `politicas_antifraude.txt`: políticas, limites, indicadores de risco e procedimentos.
-- `relatorios_fraude.txt`: casos históricos, padrões e lições aprendidas.
+- `relatorios_fraude.txt`: casos históricos, padrões e lições aprendidas.É atualizado a cada transação confirmada ou negada pelo cliente.
 - PDFs enviados pela interface Streamlit na aba **Agente**.
 
 Parâmetros atuais:
