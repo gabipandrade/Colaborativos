@@ -1,541 +1,249 @@
-# Sentinela 1.0 — Sistema Colaborativo de Detecção de Fraude com React Agent
+# Sentinela 1.0 - Sistema colaborativo com LangGraph, RAG e Streamlit
 
-Este projeto é um protótipo de sistema colaborativo baseado em um **React Agent**, desenvolvido com **LangGraph**, **LangChain** e **Ollama**.
+## Cenário colaborativo
 
-O objetivo do sistema é simular um agente de IA preditiva capaz de auxiliar um banco na detecção de possíveis fraudes em transações bancárias, PIX ou compras online.
+O Sentinela 1.0 simula um ambiente colaborativo de prevenção a fraude bancária. Os participantes são:
 
----
+- **Banco**: envia transações para análise, consulta documentos e toma decisões operacionais.
+- **Cliente/Conta**: recebe solicitações de confirmação e responde se reconhece ou não uma transação.
+- **Agente de IA**: usa LangGraph, ferramentas e RAG para consultar documentos, analisar contexto e apoiar decisões.
 
-## Objetivo do projeto
+O objetivo é permitir que o banco e o cliente troquem informações mediadas pelo sistema enquanto o agente consulta documentos e gera respostas ou recomendações baseadas em evidências.
 
-O sistema simula o seguinte fluxo:
+## O que o sistema faz
 
-1. O cliente realiza uma compra.
-2. O banco solicita que a IA verifique a transação.
-3. A IA consulta um banco de dados simulado com o histórico do cliente.
-4. A IA prediz se a transação parece normal ou suspeita.
-5. Se a transação coincidir com o padrão esperado do cliente, ela é considerada normal.
-6. Se a transação não coincidir com o padrão esperado, ela é considerada suspeita.
-7. Em caso de suspeita, o sistema:
-   - solicita confirmação ao cliente;
-   - gera um relatório justificativo para o banco.
+- Analisa transações bancárias com regras de risco e modelos treinados.
+- Permite cidades/localizações novas digitadas livremente na interface.
+- Registra mensagens entre Banco, Cliente e Agente.
+- Registra eventos colaborativos e decisões operacionais.
+- Consulta documentos internos de políticas e relatórios usando RAG.
+- Permite upload e consulta de até **5 documentos PDF** por RAG.
+- Permite conversar com o agente para discutir documentos e gerar respostas baseadas neles.
+- Mantém relatórios de análise e reanálise após resposta do cliente.
 
----
+## Modelo 3C
 
-## Tecnologias utilizadas
+### Comunicação
 
-- Python 3.12
-- LangGraph
-- LangChain
-- LangChain Ollama
-- Ollama
-- Modelo local `qwen2.5:3b`
-- Ubuntu Linux
+A comunicação aparece nas mensagens mediadas entre Banco e Cliente, no chat com o Agente e nos registros de eventos. Cada mensagem possui origem, destino, cliente relacionado e texto.
 
----
+Exemplos no sistema:
+
+- Banco envia mensagem para uma conta.
+- Cliente confirma ou nega uma compra.
+- Banco conversa com o agente sobre políticas, relatórios ou PDFs.
+
+### Colaboração
+
+A colaboração ocorre quando Banco, Cliente e Agente contribuem para a decisão:
+
+- o Banco informa a transação e consulta documentos;
+- o Agente analisa risco, recupera contexto via RAG e gera recomendações;
+- o Cliente confirma ou contesta uma transação suspeita;
+- o sistema recalcula risco e registra relatório final.
+
+### Coordenação
+
+A coordenação aparece no fluxo de estados da transação:
+
+- `aguardando decisão do banco`;
+- `aguardando resposta do cliente`;
+- `finalizada`.
+
+O sistema também bloqueia ações transacionais quando há confirmação pendente e registra o histórico de eventos para acompanhar a sequência da colaboração.
+
+## LangGraph
+
+O fluxo principal é modelado com LangGraph em `app.py`:
+
+![Grafo LangGraph do Sentinela](grafo_langgraph.png)
+
+Resumo do ciclo: `START -> agente -> ferramentas -> agente -> END`. O agente decide se responde diretamente ou se chama uma ferramenta; depois do resultado da ferramenta, ele reavalia o contexto.
+
+Nós:
+
+- `agente`: nó principal com LLM e instruções do sistema.
+- `ferramentas`: `ToolNode` com ferramentas de análise, consulta e RAG.
+- `retorno_cliente`: nó interno de retorno para permitir o ciclo de reavaliação.
+
+Ferramentas principais:
+
+- `verificar_transacao`
+- `gerar_relatorio_banco`
+- `solicitar_confirmacao_cliente`
+- `contestar_transacao_cliente`
+- `consultar_politicas_antifraude`
+- `consultar_relatorios_fraude`
+- `consultar_documentos_pdf`
+- `consultar_banco_de_dados`
+- `consultar_base_de_modelos`
+- `verificar_transacao_modelo`
+- `verificar_transacao_modelo_por_id`
+
+## RAG
+
+O sistema usa Chroma e embeddings do Ollama (`nomic-embed-text`) para recuperar trechos relevantes.
+
+Fontes de conhecimento:
+
+- `politicas_antifraude.txt`: políticas, limites, indicadores de risco e procedimentos.
+- `relatorios_fraude.txt`: casos históricos, padrões e lições aprendidas.
+- PDFs enviados pela interface Streamlit na aba **Agente**.
+
+Parâmetros atuais:
+
+- chunks de 800 caracteres;
+- sobreposição de 200 caracteres;
+- top 5 trechos por consulta;
+- persistência em `vdb/`.
+
+Se o RAG vetorial não estiver disponível para os arquivos `.txt`, o sistema usa busca textual local como fallback.
 
 ## Estrutura do projeto
 
-```bash
-Colaborativos/
-├── Colaborativo1.0.py
-├── README.md
-└── .venv/
+```text
+.
+├── app.py                         # Aplicação Streamlit, LangGraph, tools e RAG
+├── modelos_dados.py               # Carregamento da base, perfis e modelos treinados
+├── test_agente_fraude.py          # Testes automatizados
+├── politicas_antifraude.txt       # Documento interno de políticas
+├── relatorios_fraude.txt          # Documento interno de relatórios históricos
+├── dados/
+│   ├── bank_transactions_data_2.csv
+│   ├── perfis_clusters.csv
+│   └── transacoes_clusterizadas.csv
+├── modelos/
+│   ├── modelo_cluster.pkl
+│   └── modelo_isolation_forest.pkl
+├── documentos_pdf/                # Criado ao salvar PDFs enviados pela interface
+├── vdb/                           # Banco vetorial 
+└── grafo_langgraph.png
 ```
 
-O arquivo principal do projeto é:
+## Requisitos
+
+- Python 3.10 ou superior.
+- Ollama instalado e rodando localmente.
+- Modelos Ollama:
+  - `qwen2.5-coder:3b` para o agente;
+  - `nomic-embed-text` para embeddings do RAG.
+
+Dependências Python:
 
 ```bash
-Colaborativo1.0.py
+pip install streamlit langgraph langchain langchain-ollama langchain-community langchain-chroma langchain-text-splitters chromadb pandas scikit-learn joblib ipython pypdf
 ```
 
----
+## Como rodar localmente
 
-## Instalação no Ubuntu
-
-### 1. Criar a pasta do projeto
+1. Entre na pasta do projeto:
 
 ```bash
-mkdir Colaborativos
-cd Colaborativos
+cd /home/gabi/Downloads/versaoalamo
 ```
 
-Caso a pasta já exista:
-
-```bash
-cd ~/Área\ de\ trabalho/Colaborativos
-```
-
----
-
-### 2. Criar e ativar o ambiente virtual
+2. Crie e ative um ambiente virtual:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Se o ambiente estiver ativo, o terminal mostrará algo parecido com:
+3. Instale as dependências:
 
 ```bash
-(.venv) user@user-ubuntu:~/Área de trabalho/Colaborativos$
+pip install streamlit langgraph langchain langchain-ollama langchain-community langchain-chroma langchain-text-splitters chromadb pandas scikit-learn joblib ipython pypdf
 ```
 
----
-
-### 3. Instalar as dependências Python
+4. Inicie o Ollama em outro terminal:
 
 ```bash
-pip install langgraph langchain langchain-ollama
+ollama serve
 ```
 
----
-
-## Instalação do Ollama no Ubuntu
-
-
-
-### 1. Baixar o Ollama manualmente
-
-Entre na pasta do usuário:
+5. Baixe os modelos, se ainda não existirem:
 
 ```bash
-cd /home/user
+ollama pull qwen2.5-coder:3b
+ollama pull nomic-embed-text
 ```
 
-Baixe o pacote do Ollama:
+6. Rode a aplicação:
 
 ```bash
-curl -L https://github.com/ollama/ollama/releases/download/v0.5.7/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz
+streamlit run app.py
 ```
 
-Confira se o download foi feito corretamente:
-
-```bash
-ls -lh ollama-linux-amd64.tgz
-file ollama-linux-amd64.tgz
-```
-
-O arquivo deve ter aproximadamente `1,6G` e aparecer como arquivo gzip.
-
----
-
-### 2. Extrair o Ollama no `/home`
-
-```bash
-mkdir -p /home/user/ollama
-tar -C /home/user/ollama -xzf /home/rafael/ollama-linux-amd64.tgz
-```
-
-Teste se o binário foi instalado:
-
-```bash
-/home/user/ollama/bin/ollama -v
-```
-
-É normal aparecer um aviso dizendo que não existe uma instância do Ollama rodando ainda:
-
-```bash
-Warning: could not connect to a running Ollama instance
-Warning: client version is 0.5.7
-```
-
-Isso significa que o cliente foi instalado corretamente, mas o servidor ainda não foi iniciado.
-
----
-
-### 3. Configurar o PATH e a pasta dos modelos
-
-Crie a pasta onde os modelos serão armazenados:
-
-```bash
-mkdir -p /home/user/ollama-models
-```
-
-Adicione o Ollama ao PATH:
-
-```bash
-echo 'export PATH="/home/user/ollama/bin:$PATH"' >> ~/.bashrc
-echo 'export OLLAMA_MODELS="/home/user/ollama-models"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-Verifique:
-
-```bash
-which ollama
-ollama -v
-```
-
-O comando abaixo deve retornar algo parecido com:
-
-```bash
-/home/user/ollama/bin/ollama
-```
-
----
-
-## Baixando o modelo de IA
-
-Este projeto utiliza o modelo:
-
-```bash
-qwen2.5:3b
-```
-
-Antes de baixar o modelo, inicie o servidor do Ollama em um terminal separado.
-
----
-
-### Terminal 1: iniciar o servidor do Ollama
-
-```bash
-OLLAMA_MODELS=/home/user/ollama-models ollama serve
-```
-
-Deixe esse terminal aberto.
-
----
-
-### Terminal 2: baixar o modelo
-
-Em outro terminal:
-
-```bash
-source ~/.bashrc
-OLLAMA_MODELS=/home/user/ollama-models ollama pull qwen2.5:3b
-```
-
-Depois, teste o modelo:
-
-```bash
-OLLAMA_MODELS=/home/user/ollama-models ollama run qwen2.5:3b
-```
-
-Digite algo como:
+7. Abra no navegador:
 
 ```text
-Olá, você está funcionando?
+http://localhost:8501
 ```
 
-Para sair do chat do Ollama:
-
-```text
-/bye
-```
-
----
-
-## Como executar o programa
-
-Com o servidor do Ollama ainda rodando no Terminal 1, abra outro terminal e execute:
+Se houver problema de cache do Hugging Face ou Chroma sem permissão de escrita, rode:
 
 ```bash
-cd ~/Área\ de\ trabalho/Colaborativos
-source .venv/bin/activate
-python Colaborativo1.0.py
+HF_HOME=/tmp/huggingface TRANSFORMERS_CACHE=/tmp/huggingface streamlit run app.py
 ```
 
-A saída esperada será parecida com:
+## Como usar
 
-```text
-Sistema colaborativo de detecção de fraude iniciado.
-Paradigma de IA: IA preditiva.
-Digite 'sair' para encerrar.
+### Banco
 
-Usuário:
-```
+1. Abra a aba **Banco**.
+2. Escolha uma conta.
+3. Digite valor, cidade/localização, tipo, canal e demais campos.
+4. Clique em **Enviar transação ao agente**.
+5. Avalie a recomendação e escolha:
+   - autorizar compra;
+   - não autorizar;
+   - pedir confirmação ao cliente.
 
----
+A cidade/localização é campo livre: é possível informar cidades novas que não existem na base original.
 
-## Como testar o sistema
+### Cliente
 
-### Teste 1 — Transação normal
+1. Abra a aba **Cliente**.
+2. Escolha a conta.
+3. Veja mensagens e solicitações pendentes.
+4. Confirme ou negue a transação.
 
-Digite:
+Após a resposta, o sistema recalcula o risco e gera um relatório final.
 
-```text
-O banco deseja verificar uma compra do cliente Joao no valor de 80 reais, na cidade de Sao Carlos, categoria mercado, no horário diurno.
-```
+### PDFs e documentos
 
-Resultado esperado:
+1. Abra a aba **Agente**.
+2. Em **Base de conhecimento RAG**, envie até 5 PDFs.
+3. Clique em **Salvar PDFs para RAG**.
+4. Use **Consultar PDFs** para recuperar trechos relevantes.
+5. Use **Discutir PDFs com agente** para gerar uma resposta baseada nos trechos recuperados.
 
-```text
-A transação deve ser classificada como normal, pois coincide com o padrão histórico do cliente.
-```
+Na mesma aba também é possível consultar:
 
----
+- políticas antifraude;
+- relatórios históricos de fraude;
+- chat geral com o agente.
 
-### Teste 2 — Transação suspeita
+### Chat com o agente
 
-Digite:
+Use o chat da aba **Agente** para pedir:
 
-```text
-O banco deseja verificar uma compra do cliente Joao no valor de 5000 reais, na cidade de Dubai, categoria eletronicos, no horário noturno.
-```
+- resumo da mediação;
+- análise de uma transação;
+- consulta às políticas;
+- comparação com relatórios históricos;
+- discussão de PDFs enviados.
 
-Resultado esperado:
+## Testes
 
-```text
-A transação deve ser classificada como suspeita.
-```
-
-O agente deve justificar a decisão com fatores como:
-
-- cidade diferente do padrão;
-- valor muito acima da média;
-- categoria incomum;
-- horário diferente do padrão.
-
-Além disso, o sistema deve:
-
-- solicitar confirmação ao cliente;
-- gerar relatório para o banco.
-
----
-
-### Teste 3 — Consultar banco de dados
-
-Digite:
-
-```text
-Mostre o banco de dados com os relatórios e confirmações registradas.
-```
-
-Resultado esperado:
-
-```text
-O agente deve mostrar os perfis dos clientes, os relatórios registrados e as confirmações enviadas.
-```
-
----
-
-### Teste 4 — Encerrar o programa
-
-Digite:
-
-```text
-sair
-```
-
----
-
-## Ferramentas implementadas
-
-O sistema possui quatro ferramentas principais.
-
----
-
-### 1. `verificar_transacao`
-
-Verifica se uma transação bancária, PIX ou compra online é suspeita.
-
-A ferramenta analisa:
-
-- cliente;
-- valor;
-- cidade;
-- categoria;
-- horário.
-
-Ela retorna:
-
-- ação predita;
-- pontuação de risco;
-- classificação da transação;
-- justificativa da decisão.
-
----
-
-### 2. `gerar_relatorio_banco`
-
-Gera um relatório para o banco com os dados da transação e os motivos que levaram à classificação.
-
-O relatório inclui:
-
-- cliente;
-- valor;
-- cidade;
-- categoria;
-- horário;
-- pontuação de risco;
-- classificação;
-- fatores considerados pela IA.
-
----
-
-### 3. `solicitar_confirmacao_cliente`
-
-Simula o envio de uma confirmação ao cliente.
-
-Essa ferramenta é usada quando a IA identifica uma transação suspeita.
-
----
-
-### 4. `consultar_banco_de_dados`
-
-Consulta o banco de dados simulado do sistema.
-
-Ela mostra:
-
-- perfis históricos dos clientes;
-- relatórios de fraude registrados;
-- confirmações pendentes enviadas aos clientes.
-
----
-
-## Fluxo do React Agent
-
-O sistema segue o padrão de comportamento de um React Agent.
-
-O agente decide, a cada interação, se deve:
-
-1. responder diretamente ao usuário;
-2. chamar uma ferramenta;
-3. receber o resultado da ferramenta;
-4. continuar o raciocínio;
-5. retornar uma resposta final.
-
-Fluxo simplificado:
-
-```mermaid
-flowchart TD
-    A[Cliente realiza compra] --> B[Banco recebe a ação de compra]
-    B --> C[Banco solicita verificação à IA]
-    C --> D[IA consulta banco de dados histórico]
-    D --> E[IA realiza predição da compra]
-    E --> F{Predição coincide com o padrão esperado?}
-    F -->|Sim| G[Transação considerada normal]
-    F -->|Não| H[Transação considerada suspeita]
-    H --> I[IA gera relatório justificativo para o banco]
-    H --> J[IA solicita confirmação ao cliente]
-    J --> K[Cliente confirma ou nega a compra]
-```
-
----
-
-## Relação com sistemas colaborativos
-
-O sistema envolve colaboração entre três elementos principais:
-
-- Banco;
-- Cliente;
-- IA preditiva.
-
----
-
-### Comunicação
-
-A comunicação ocorre quando o banco envia uma transação para ser verificada e quando o sistema retorna uma resposta ao banco ou solicita confirmação ao cliente.
-
----
-
-### Coordenação
-
-A coordenação aparece no fluxo de decisão da IA, que organiza as etapas de verificação, classificação, geração de relatório e solicitação de confirmação.
-
----
-
-### Cooperação
-
-A cooperação ocorre porque o banco, o cliente e a IA contribuem para a decisão final. O banco fornece os dados da transação, a IA realiza a análise preditiva e o cliente pode confirmar ou negar uma transação suspeita.
-
----
-
-## Observações importantes
-
-Este projeto é apenas um protótipo inicial.
-
-O banco de dados utilizado é simulado em memória, usando estruturas Python como dicionários e listas.
-
-Isso significa que os dados registrados durante a execução são perdidos quando o programa é encerrado.
-
-Em versões futuras, o sistema pode ser expandido com:
-
-- banco de dados real;
-- interface web;
-- autenticação de usuários;
-- histórico persistente de transações;
-- modelos reais de machine learning;
-- dashboard para o banco;
-- confirmação real por e-mail, SMS ou aplicativo.
-
----
-
-## Problemas comuns
-
-### Erro: `ollama: command not found`
-
-Significa que o terminal não encontrou o executável do Ollama.
-
-Tente:
+Execute:
 
 ```bash
-source ~/.bashrc
-which ollama
+python3 -m pytest test_agente_fraude.py -q
 ```
 
-Se ainda não funcionar, adicione novamente ao PATH:
-
-```bash
-echo 'export PATH="/home/user/ollama/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
----
-
-### Erro: `could not connect to a running Ollama instance`
-
-Significa que o servidor do Ollama não está rodando.
-
-Inicie com:
-
-```bash
-OLLAMA_MODELS=/home/user/ollama-models ollama serve
-```
-
----
-
-### Erro: modelo não encontrado
-
-Se aparecer erro dizendo que o modelo `qwen2.5:3b` não existe localmente, rode:
-
-```bash
-OLLAMA_MODELS=/home/user/ollama-models ollama pull qwen2.5:3b
-```
-
----
-
-### Partição `/` cheia
-
-Se o root encher durante a instalação, verifique com:
-
-```bash
-df -h
-```
-
-Caso uma instalação parcial do Ollama tenha ocupado espaço em `/usr/local`, remova com cuidado:
-
-```bash
-sudo systemctl stop ollama 2>/dev/null
-sudo systemctl disable ollama 2>/dev/null
-
-sudo rm -rf /usr/local/lib/ollama
-sudo rm -f /usr/local/bin/ollama
-sudo rm -f /etc/systemd/system/ollama.service
-
-sudo systemctl daemon-reload
-df -h
-```
-
----
-
-## Autor
-
-Projeto desenvolvido como protótipo inicial para atividade de sistemas colaborativos com agentes do tipo React Agent.
+Resultado atual validado:
 
 ```text
-Sistema: Colaborativo 1.0
-Paradigma de IA: IA preditiva
-Cenário: Detecção de fraude bancária
+15 passed
 ```
